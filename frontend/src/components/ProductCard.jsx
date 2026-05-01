@@ -4,30 +4,29 @@ import { Heart, ShoppingCart, Star, Zap } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useWishlist } from '../context/WishlistContext'
 
-const badgeColors = {
-  'Best Seller': 'bg-yellow-500',
-  'Trending': 'bg-purple-500',
+const BADGE_COLORS = {
+  'Best Seller': 'bg-amber-500',
+  'Trending': 'bg-purple-600',
   'Factory Price': 'bg-[#c41e3a]',
-  'New Arrival': 'bg-green-500',
+  'New Arrival': 'bg-emerald-500',
   'Limited': 'bg-orange-500',
 }
 
 export default function ProductCard({ product, index = 0 }) {
   const { addToCart } = useCart()
   const { toggleWishlist, isWishlisted } = useWishlist()
-
   const discount = Math.round(((product.originalPrice - product.offerPrice) / product.originalPrice) * 100)
   const wishlisted = isWishlisted(product._id)
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      className="product-card bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl group"
+      transition={{ delay: Math.min(index * 0.05, 0.4), duration: 0.35 }}
+      className="product-card bg-white rounded-2xl overflow-hidden border border-gray-100 flex flex-col"
     >
-      {/* Image */}
-      <Link to={`/products/${product._id}`} className="block relative overflow-hidden aspect-[3/4] bg-gray-50">
+      {/* ── Image area ─────────────────────── */}
+      <Link to={`/products/${product._id}`} className="block relative overflow-hidden bg-gray-50 flex-shrink-0" style={{ aspectRatio: '3/4' }}>
         <img
           src={product.images?.[0] || 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500'}
           alt={product.name}
@@ -35,90 +34,91 @@ export default function ProductCard({ product, index = 0 }) {
           loading="lazy"
         />
 
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+        {/* Top-left badges */}
+        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
           {product.badge && (
-            <span className={`${badgeColors[product.badge] || 'bg-gray-800'} text-white text-[10px] font-bold px-2 py-0.5 rounded-full`}>
+            <span className={`${BADGE_COLORS[product.badge] || 'bg-gray-700'} text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide leading-none`}>
               {product.badge}
             </span>
           )}
-          {discount > 0 && (
-            <span className="bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+          {discount >= 5 && (
+            <span className="bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide leading-none">
               {discount}% OFF
             </span>
           )}
         </div>
 
-        {/* Wishlist */}
+        {/* Wishlist button */}
         <button
-          onClick={(e) => { e.preventDefault(); toggleWishlist(product) }}
-          className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-md ${wishlisted
-            ? 'bg-[#c41e3a] text-white'
-            : 'bg-white text-gray-400 hover:text-[#c41e3a] opacity-0 group-hover:opacity-100'
-            }`}
+          onClick={e => { e.preventDefault(); toggleWishlist(product) }}
+          className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all ${wishlisted ? 'bg-[#c41e3a] text-white' : 'bg-white/90 text-gray-400 hover:text-[#c41e3a]'}`}
+          aria-label="Toggle wishlist"
         >
-          <Heart size={14} fill={wishlisted ? 'currentColor' : 'none'} />
+          <Heart size={13} fill={wishlisted ? 'currentColor' : 'none'} />
         </button>
 
-        {/* Quick Add */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur translate-y-full group-hover:translate-y-0 transition-transform duration-300 p-2">
+        {/* Quick Add — slides up on hover */}
+        <div className="absolute bottom-0 inset-x-0 translate-y-full group-hover:translate-y-0 transition-transform duration-250 bg-white/95 backdrop-blur-sm p-2">
           <button
-            onClick={(e) => { e.preventDefault(); addToCart(product) }}
-            className="w-full bg-[#c41e3a] text-white py-2 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#9b1527] transition-colors"
+            onClick={e => { e.preventDefault(); addToCart(product) }}
+            className="w-full bg-[#c41e3a] text-white py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[#9b1527] transition-colors"
           >
-            <ShoppingCart size={14} /> Quick Add
+            <ShoppingCart size={13} /> Quick Add
           </button>
         </div>
       </Link>
 
-      {/* Info */}
-      <div className="p-3">
-        <Link to={`/products/${product._id}`}>
-          <p className="text-xs text-gray-400 capitalize mb-0.5">{product.category?.replace('-', ' ')}</p>
-          <h3 className="text-gray-800 font-semibold text-sm line-clamp-2 leading-tight hover:text-[#c41e3a] transition-colors">
+      {/* ── Info area ──────────────────────── */}
+      <div className="p-3 flex flex-col flex-1">
+        <Link to={`/products/${product._id}`} className="block mb-auto">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1 leading-none capitalize">
+            {product.category?.replace(/-/g, ' ')}
+          </p>
+          <h3 className="text-gray-800 font-semibold text-sm leading-snug hover:text-[#c41e3a] transition-colors line-clamp-2">
             {product.name}
           </h3>
         </Link>
 
         {/* Rating */}
-        {product.rating && (
-          <div className="flex items-center gap-1 mt-1.5">
-            <Star size={12} className="text-yellow-400 fill-yellow-400" />
-            <span className="text-xs font-medium text-gray-700">{product.rating}</span>
-            <span className="text-xs text-gray-400">({product.reviews})</span>
+        {product.rating > 0 && (
+          <div className="flex items-center gap-1 mt-2">
+            <div className="flex gap-0.5">
+              {[1,2,3,4,5].map(s => (
+                <Star key={s} size={10} className={s <= Math.round(product.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'} />
+              ))}
+            </div>
+            <span className="text-[10px] text-gray-500">({product.reviews || product.numReviews || 0})</span>
           </div>
         )}
 
-        {/* Price */}
-        <div className="flex items-center gap-2 mt-2">
-          <span className="text-[#c41e3a] font-bold text-base">₹{product.offerPrice}</span>
+        {/* Price row */}
+        <div className="flex items-center gap-1.5 mt-2">
+          <span className="text-[#c41e3a] font-black text-base">₹{product.offerPrice}</span>
           {product.originalPrice > product.offerPrice && (
             <span className="text-gray-400 line-through text-xs">₹{product.originalPrice}</span>
           )}
         </div>
 
         {/* Sizes */}
-        {product.sizes && (
+        {product.sizes?.length > 0 && (
           <div className="flex gap-1 mt-2 flex-wrap">
-            {product.sizes.slice(0, 4).map(s => (
-              <span key={s} className="text-[10px] border border-gray-200 text-gray-500 px-1.5 py-0.5 rounded">
+            {product.sizes.slice(0, 5).map(s => (
+              <span key={s} className="text-[9px] border border-gray-200 text-gray-500 px-1.5 py-0.5 rounded-md font-medium">
                 {s}
               </span>
             ))}
-            {product.sizes.length > 4 && (
-              <span className="text-[10px] text-gray-400">+{product.sizes.length - 4}</span>
-            )}
+            {product.sizes.length > 5 && <span className="text-[9px] text-gray-400 self-center">+{product.sizes.length - 5}</span>}
           </div>
         )}
 
-        {/* Stock */}
+        {/* Low stock */}
         {product.stock <= 10 && product.stock > 0 && (
-          <p className="text-orange-500 text-[10px] font-medium mt-1 flex items-center gap-1">
-            <Zap size={10} /> Only {product.stock} left!
+          <p className="text-orange-500 text-[10px] font-semibold mt-2 flex items-center gap-1">
+            <Zap size={9} /> Only {product.stock} left
           </p>
         )}
         {product.stock === 0 && (
-          <p className="text-red-500 text-[10px] font-medium mt-1">Out of Stock</p>
+          <p className="text-red-400 text-[10px] font-semibold mt-2">Out of Stock</p>
         )}
       </div>
     </motion.div>
