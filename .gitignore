@@ -1,0 +1,25 @@
+# Sri Murugan Textiles
+
+# Dependencies
+node_modules/
+.npm/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Build outputs
+frontend/dist/
+frontend/.vite/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
